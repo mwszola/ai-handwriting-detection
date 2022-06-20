@@ -1,0 +1,1 @@
+# AI Handwriting detection - project
