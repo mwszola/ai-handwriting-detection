@@ -2,11 +2,13 @@ from keras.models import load_model
 from PIL import Image
 import numpy as np
 import flask
+from flask_cors import CORS
 import io
 import cv2
 
 # Inicjalizacja aplikacji oraz modelu Keras
 app = flask.Flask(__name__)
+CORS(app)
 model = None
 
 # Skojarzenie wartości numerycznych z literami alfabetu
