@@ -1,12 +1,11 @@
-import matplotlib.pyplot as plt
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout
-from keras.optimizers import SGD, Adam
-from keras.callbacks import ReduceLROnPlateau, EarlyStopping
-from keras.utils import to_categorical
 import pandas as pd
+from keras.layers import Dense, Flatten, Conv2D, MaxPool2D
+from keras.models import Sequential
+from keras.optimizers import Adam
+from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
@@ -17,11 +16,11 @@ data = pd.read_csv(r"/Users/matthew/Desktop/archive/A_Z Handwritten Data.csv").a
 # Wyświetlenie pierwszych 10 danych
 print(data.head(10))
 
-# Podział danych na zdjęcia i ich opisy
+# Podział danych na zdjęcia oraz ich opisy
 X = data.drop('0', axis=1)
 y = data['0']
 
-# przygotowanie danych by miały odpowiedni format
+# Przygotowanie danych, aby miały odpowiedni format
 train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2)
 train_x = np.reshape(train_x.values, (train_x.shape[0], 28, 28))
 test_x = np.reshape(test_x.values, (test_x.shape[0], 28, 28))
@@ -62,9 +61,8 @@ for i in range(9):
     axes[i].imshow(np.reshape(shuff[i], (28, 28)), cmap="Greys")
 plt.show()
 
-# Data reshaping
 
-# Przygotowujemy dane aby pasowaly do modelu
+# Przygotowanie danych, aby byly prawidlowo interperetowane przez model
 
 train_X = train_x.reshape(train_x.shape[0], train_x.shape[1], train_x.shape[2], 1)
 print("New shape of train data: ", train_X.shape)
@@ -72,12 +70,7 @@ print("New shape of train data: ", train_X.shape)
 test_X = test_x.reshape(test_x.shape[0], test_x.shape[1], test_x.shape[2], 1)
 print("New shape of train data: ", test_X.shape)
 
-# Now we reshape the train & test image dataset so that they can be put in the model.
-
-# New shape of train data:  (297960, 28, 28, 1)
-# New shape of train data:  (74490, 28, 28, 1)
-
-
+# Zmiana struktury zestawu zdjęć do trenowania oraz testowania w taki sposób, że będą mogły zostać umieszczone w modelu
 train_yOHE = to_categorical(train_y, num_classes=26, dtype='int')
 print("New shape of train labels: ", train_yOHE.shape)
 
@@ -101,17 +94,16 @@ model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentrop
 
 history = model.fit(train_X, train_yOHE, epochs=1, validation_data=(test_X, test_yOHE))
 
-# podsumowanie, ktore daje nam info gdzie rozne warstwy sa zdefiniowane w modelu
+# Podsumowanie, ktore daje nam informacje o tym, gdzie rozne warstwy sa zdefiniowane w modelu
 model.summary()
 model.save(r'model_hand.h5')
 
-# user friendly prints
 print("The validation accuracy is :", history.history['val_accuracy'])
 print("The training accuracy is :", history.history['accuracy'])
 print("The validation loss is :", history.history['val_loss'])
 print("The training loss is :", history.history['loss'])
 
-# robienie przeiwdywan na danych testowych
+# Wykonywanie przeiwdywan na danych testowych
 fig, axes = plt.subplots(3, 3, figsize=(8, 9))
 axes = axes.flatten()
 
@@ -124,12 +116,11 @@ for i, ax in enumerate(axes):
     ax.grid()
 
 
-# Przetwarzanie obrazu - helper
-
+# Funkcja pomocnicza do przetworzenia obrazu
 def convertImage(filename):
     # Wykonywanie przewidywan na zdjeciu z zewnatrz
     name = filename
-    img = cv2.imread(fr'/Users/matthew/Desktop/{name}')
+    img = cv2.imread(fr'/Users/matthew/Desktop/letters/{name}')
     img_copy = img.copy()
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -144,18 +135,11 @@ def convertImage(filename):
 
     img_pred = word_dict[np.argmax(model.predict(img_final))]
 
-    cv2.putText(img, "Dataflair _ _ _ ", (20, 25), cv2.FONT_HERSHEY_TRIPLEX, 0.7, color=(0, 0, 230))
     cv2.putText(img, "Prediction: " + img_pred, (20, 410), cv2.FONT_HERSHEY_DUPLEX, 1.3, color=(255, 0, 30))
-    cv2.imshow('Dataflair handwritten character recognition _ _ _ ', img)
+    cv2.imshow('handwritten character recognition _ _ _ ', img)
 
 
-convertImage('letter_f.png')
-# convertImage('fat_letter_m.png')
-# convertImage('letter_g.png')
-# convertImage('letter_h.png')
-# convertImage('letter_p.png')
-# convertImage('letters_ty.png')
-# convertImage('letter_h.png')
+convertImage('letter_a.png')
 
 while 1:
     k = cv2.waitKey(1) & 0xFF
